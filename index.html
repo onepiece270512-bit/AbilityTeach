@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f7f6f1" />
+  <meta name="description" content="A little more understanding makes a big difference. AbilityTeach helps teachers learn what helps every student thrive." />
+  <title>AbilityTeach — Every learner, understood</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="AbilityTeach home">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 36 36" fill="none"><path d="M18 29s-10-6-10-14a5.5 5.5 0 0 1 10-3.2A5.5 5.5 0 0 1 28 15c0 8-10 14-10 14Z" fill="currentColor"/><path d="M11 19h4l2-5 3 9 2-4h3" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span>Ability<span class="brand-strong">Teach</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="#approach">Our approach</a><a href="#how-it-works">How it works</a><a href="#for-teachers">For teachers</a>
+    </nav>
+    <a class="button button-dark nav-cta" href="#for-teachers">Explore the classroom <span aria-hidden="true">↗</span></a>
+    <button class="menu-toggle" aria-label="Open navigation" aria-expanded="false"><span></span><span></span></button>
+  </header>
+
+  <main id="home">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> The curriculum platform with room for everyone</div>
+        <h1>One lesson.<br /><em>More ways in.</em></h1>
+        <p class="hero-description">Find a lesson. Pick a way to explore it. Try it together. AbilityTeach helps every child find a way to join in.</p>
+        <div class="hero-actions"><a href="#curriculum" class="button button-dark">Explore a lesson <span aria-hidden="true">→</span></a><a href="#trust" class="text-link">How we earn trust <span aria-hidden="true">↗</span></a></div>
+        <div class="hero-note"><span class="tiny-sparkle">✳</span><span>Built for curious kids and the grown-ups who teach them.</span></div>
+      </div>
+      <div class="lesson-preview" id="curriculum">
+        <div class="lesson-preview-head"><span class="lesson-tag">TODAY'S LESSON · SCIENCE</span><span class="lesson-grade">GRADE 5</span></div>
+        <h2>How do plants grow?</h2>
+        <p class="lesson-question">Let's find out. Choose how you want to explore.</p>
+        <div class="lesson-choices" role="tablist" aria-label="Choose a lesson activity">
+          <button class="lesson-choice active" role="tab" aria-selected="true" data-choice="story"><span class="choice-icon">01</span><span><b>Read a story</b><small>Meet a seed on its way up.</small></span><span class="choice-arrow">↗</span></button>
+          <button class="lesson-choice" role="tab" aria-selected="false" data-choice="listen"><span class="choice-icon">02</span><span><b>Listen & talk</b><small>Wonder out loud together.</small></span><span class="choice-arrow">↗</span></button>
+          <button class="lesson-choice" role="tab" aria-selected="false" data-choice="try"><span class="choice-icon">03</span><span><b>Try it yourself</b><small>Plant a seed and keep watch.</small></span><span class="choice-arrow">↗</span></button>
+        </div>
+        <div class="lesson-footer"><span class="live-dot"></span><span id="lesson-result">Your class can switch paths anytime.</span></div>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Product values"><span>Curriculum first</span><i></i><span>Many ways to take part</span><i></i><span>No learner labels</span></section>
+
+    <section class="approach section-wrap" id="approach">
+      <div class="section-heading"><div class="eyebrow"><span class="eyebrow-dot"></span> A whole learning journey</div><h2>Lessons, activities,<br /><em>and room to grow.</em></h2><p>Everything a teacher needs to bring a lesson to life, in one thoughtful place.</p></div>
+      <div class="principles">
+        <article class="principle-card"><div class="principle-icon icon-peach">01</div><span class="card-number">FIND</span><h3>Ready-to-teach lessons</h3><p>Choose a topic. Open the lesson. Let's get started.</p><span class="card-decoration deco-orange"></span></article>
+        <article class="principle-card"><div class="principle-icon icon-blue">02</div><span class="card-number">EXPLORE</span><h3>More ways to learn</h3><p>Read it, talk it through, or try it hands-on.</p><span class="card-decoration deco-blue"></span></article>
+        <article class="principle-card"><div class="principle-icon icon-green">03</div><span class="card-number">GROW</span><h3>Notice what helps</h3><p>Check in, reflect, and choose what to try next.</p><span class="card-decoration deco-green"></span></article>
+      </div>
+    </section>
+
+    <section class="how-section" id="how-it-works"><div class="how-inner"><div class="how-copy"><div class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span> And every voice matters</div><h2>Tell us what helps.<br /><em>Then let's learn.</em></h2><p>A quick check-in helps your teacher get to know you. It's one tool in a bigger learning journey.</p><ol class="steps"><li><span>1</span><div><b>Pick what feels right</b><small>No wrong answers. You can choose more than one.</small></div></li><li><span>2</span><div><b>Your teacher listens</b><small>Your answers help start a conversation.</small></div></li><li><span>3</span><div><b>Keep trying new things</b><small>What helps can change from lesson to lesson.</small></div></li></ol></div><div class="survey-card" id="survey-card"><div class="survey-card-top"><div class="mini-logo"><span>✳</span> Your learning check-in</div><span class="progress-label" id="progress-label">1 of 3</span></div><div class="progress-track"><span id="progress-fill"></span></div><div class="survey-content" id="survey-content"><span class="survey-kicker">A LITTLE ABOUT YOU</span><h3 id="survey-question">When you're learning something new, what helps you get started?</h3><p class="survey-subtitle" id="survey-subtitle">Choose what sounds like you. You can pick more than one.</p><div class="survey-options" id="survey-options"></div><button class="button button-dark survey-next" id="survey-next">Next question <span>→</span></button><button class="survey-back" id="survey-back" hidden>← Back</button></div><div class="survey-success" id="survey-success" hidden><div class="success-mark">✓</div><h3>Thanks for sharing!</h3><p>Your answers help your teacher find ways to make learning work for you.</p><button class="button button-dark" id="survey-again">Start again <span>↻</span></button></div><div class="survey-foot"><span>✳</span> There are no wrong answers. Just your answers.</div></div></div></section>
+
+    <section class="teacher-section section-wrap" id="for-teachers"><div class="teacher-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span> Teacher view</div><h2>See the class.<br /><em>Support each child.</em></h2></div><p>Plan with student voices in mind. You bring the teaching judgment.</p></div><div class="dashboard"><div class="dashboard-top"><div><span class="dashboard-kicker">YOUR CLASSROOM</span><h3>Room 12 <span class="class-pill">Grade 5</span></h3></div><div class="dashboard-meta"><span class="live-dot"></span> Sample class view</div></div><div class="dashboard-grid"><div class="insight-main"><span class="insight-label">TRY THIS WITH THE PLANT LESSON</span><h4>Pause. Let everyone think. Then invite a partner chat.</h4><p>A simple next step, based on what students said helps them join in.</p><div class="avatar-row"><span class="avatar av1">J</span><span class="avatar av2">M</span><span class="avatar av3">A</span><span class="avatar av4">L</span><span class="avatar av-more">+8</span><span class="avatar-note">Student voices behind this idea</span></div></div><div class="insight-side"><span class="insight-label">WAYS STUDENTS WANT TO EXPLORE</span><div class="signal"><span class="signal-icon signal-v">01</span><div><b>See an example</b><small>Offer a worked example</small></div></div><div class="signal"><span class="signal-icon signal-t">02</span><div><b>Try it hands-on</b><small>Set up a simple plant test</small></div></div><div class="signal"><span class="signal-icon signal-d">03</span><div><b>Talk it through</b><small>Make room for pair discussion</small></div></div><div class="insight-disclaimer">Suggestions to consider. Teacher decides.</div></div></div></div><p class="privacy-note"><span>♡</span> Keep student information private. Share only with the right people.</p></section>
+
+    <section class="trust-section" id="trust"><div class="section-wrap"><div class="section-heading"><div class="eyebrow"><span class="eyebrow-dot"></span> Trust is something we show</div><h2>Good questions.<br /><em>Clear answers.</em></h2><p>Four checks every learning platform should pass.</p></div><div class="trust-grid"><article><b>01 · Curriculum</b><h3>What will my child learn?</h3><p>Show the learning goal and where each lesson fits.</p></article><article><b>02 · Evidence</b><h3>How do you know it helps?</h3><p>Use established teaching practices. Keep checking what works.</p></article><article><b>03 · Student voice</b><h3>Will my child get a label?</h3><p>No. Preferences start a conversation; they don't define a child.</p></article><article><b>04 · Privacy</b><h3>Who can see their answers?</h3><p>Explain what is collected, who sees it, and how long it stays.</p></article></div></div></section>
+
+    <section class="appendix section-wrap" id="vark"><details><summary><span><small>APPENDIX · LEARNING PREFERENCES</small><strong>VARK, in a nutshell</strong></span><span class="appendix-toggle">+</span></summary><div class="appendix-content"><p>VARK is a reflection tool for preferences—not a test that tells a child how they must learn. Many people use more than one approach.</p><div class="vark-table-wrap"><table class="vark-table"><thead><tr><th>Letter</th><th>Preference</th><th>In kid-friendly words</th></tr></thead><tbody><tr><td>V</td><td>Visual</td><td>“Show me a picture, chart, or map.”</td></tr><tr><td>A</td><td>Aural</td><td>“Let's talk it through or listen together.”</td></tr><tr><td>R</td><td>Read / Write</td><td>“Let me read it, write it, or make a list.”</td></tr><tr><td>K</td><td>Kinesthetic</td><td>“Let me try it, build it, or see a real example.”</td></tr></tbody></table></div><p class="vark-note">Offer all four routes; never lock a child into one. Evidence for matching lessons to fixed styles is mixed. <a href="https://vark-learn.com/about-vark/frequently-asked-questions/" target="_blank" rel="noreferrer">VARK definitions ↗</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11270031/" target="_blank" rel="noreferrer">Evidence review ↗</a></p></div></details></section>
+
+    <section class="closing"><div class="closing-spark">✳</div><div class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span> Let's make room for everyone</div><h2>Big ideas.<br /><em>More ways in.</em></h2><p>Lessons kids can explore, and teachers can shape.</p><a class="button button-cream" href="#curriculum">Explore a lesson <span>→</span></a><span class="closing-star">✦</span></section>
+  </main>
+  <footer class="footer"><a class="brand" href="#home"><span class="brand-mark"><svg viewBox="0 0 36 36" fill="none"><path d="M18 29s-10-6-10-14a5.5 5.5 0 0 1 10-3.2A5.5 5.5 0 0 1 28 15c0 8-10 14-10 14Z" fill="currentColor"/><path d="M11 19h4l2-5 3 9 2-4h3" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Ability<span class="brand-strong">Teach</span></span></a><span class="footer-note">Built for every way of becoming.</span><a href="#vark" class="back-top">VARK appendix</a><span class="copyright">© 2026 AbilityTeach</span></footer>
+</body>
+</html>

@@ -1,0 +1,19 @@
+import { AppShell } from "@/components/app-shell";
+import { approveTeacherAction } from "@/app/actions/auth";
+import { requireUser } from "@/lib/auth";
+import { db } from "@/lib/db";
+
+export default async function AdminDashboard() {
+  const admin = await requireUser("ADMIN");
+  const [teachers, users, classes, audit] = await Promise.all([
+    db.user.findMany({ where: { role: "TEACHER", ...(admin.schoolId ? { schoolId: admin.schoolId } : {}) }, include: { school: true, _count: { select: { teachingClasses: true } } }, orderBy: { createdAt: "desc" } }),
+    db.user.count({ where: admin.schoolId ? { schoolId: admin.schoolId } : {} }),
+    db.classroom.count({ where: admin.schoolId ? { schoolId: admin.schoolId } : {} }),
+    db.auditLog.findMany({ where: admin.schoolId ? { actor: { schoolId: admin.schoolId } } : {}, include: { actor: { select: { name: true, role: true } } }, orderBy: { createdAt: "desc" }, take: 12 }),
+  ]);
+  return <AppShell user={admin}><div className="page-header"><div><span className="eyebrow">SCHOOL ADMINISTRATION</span><h1>Access &amp; privacy</h1><p>Review teacher access, accounts, and recent activity.</p></div></div><div className="stat-grid"><div className="stat-card"><div className="stat-card-label">Accounts</div><div className="stat-card-value">{users}</div><div className="stat-card-note">Students, teachers, administrators</div></div><div className="stat-card"><div className="stat-card-label">Classes</div><div className="stat-card-value">{classes}</div><div className="stat-card-note">School workspace</div></div><div className="stat-card"><div className="stat-card-label">Approved teachers</div><div className="stat-card-value">{teachers.filter((teacher)=>teacher.teacherApproved).length}</div><div className="stat-card-note">Authorized to see their classes</div></div><div className="stat-card"><div className="stat-card-label">Pending approval</div><div className="stat-card-value">{teachers.filter((teacher)=>!teacher.teacherApproved).length}</div><div className="stat-card-note">No student-record access yet</div></div></div>
+    <section className="panel"><div className="panel-header"><div><h2>Teacher accounts</h2><p>Approve only verified teachers for your school.</p></div></div><table className="data-table"><thead><tr><th>Name</th><th>School</th><th>Classes</th><th>Access</th><th></th></tr></thead><tbody>{teachers.map((teacher)=><tr key={teacher.id}><td><b>{teacher.name}</b><br/><small>{teacher.email}</small></td><td>{teacher.school?.name || "—"}</td><td>{teacher._count.teachingClasses}</td><td><span className={`status-pill ${teacher.teacherApproved ? "" : "pending"}`}>{teacher.teacherApproved ? "Approved" : "Pending"}</span></td><td>{!teacher.teacherApproved && <form action={approveTeacherAction}><input type="hidden" name="teacherId" value={teacher.id}/><button className="button button-primary">Approve</button></form>}</td></tr>)}</tbody></table></section>
+    <section className="panel" style={{marginTop:18}}><div className="panel-header"><div><h2>Recent audit activity</h2><p>Sign-ins, survey completion, approvals, and content publishing.</p></div></div>{audit.length ? <table className="data-table"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Record</th></tr></thead><tbody>{audit.map((entry)=><tr key={entry.id}><td>{entry.createdAt.toLocaleString()}</td><td>{entry.actor?.name || "Account removed"}</td><td>{entry.action}</td><td>{entry.targetType}</td></tr>)}</tbody></table> : <p className="form-hint">Activity will appear when people use the app.</p>}</section>
+    <section className="panel" style={{marginTop:18}}><h2>Privacy boundary</h2><p className="form-hint" style={{marginTop:7}}>AbilityTeach does not claim legal compliance. Confirm consent, retention, and AI-processing rules with your institution before using real student data.</p></section>
+  </AppShell>;
+}
