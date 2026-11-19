@@ -2,6 +2,12 @@
 
 AbilityTeach is an AI-assisted curriculum and learning platform for teachers and students. The current build includes role-based accounts, class enrollment, a VARK preference survey, teacher dashboards, editable lesson and material drafts, assignments, student study tools, quiz attempts, progress views, and a provisioned administrator dashboard.
 
+## Run from GitHub Codespaces
+
+Open the repository on GitHub, choose **Code → Codespaces → Create codespace on main**, and wait for setup to finish. Codespaces starts PostgreSQL, creates the schema and Priya demo data, then launches the app and forwards port 3000 to your browser. GitHub documents this workflow through the repository's `.devcontainer` configuration and forwarded ports.
+
+If port 3000 does not open automatically, select the **Ports** panel in Codespaces and open port 3000.
+
 ## Run locally
 
 Requirements: Node.js 20.9 or newer and PostgreSQL 14 or newer.

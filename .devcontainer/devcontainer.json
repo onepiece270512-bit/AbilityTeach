@@ -1,0 +1,20 @@
+{
+  "name": "AbilityTeach",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/AbilityTeach",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "AbilityTeach",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postCreateCommand": "npm install && npx prisma generate && npx prisma db push && npm run db:seed",
+  "postAttachCommand": "bash .devcontainer/start-app.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": ["Prisma.prisma"]
+    }
+  }
+}

@@ -1,0 +1,30 @@
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm
+    command: sleep infinity
+    working_dir: /workspaces/AbilityTeach
+    volumes:
+      - ..:/workspaces/AbilityTeach:cached
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://abilityteach:abilityteach@db:5432/abilityteach?schema=public
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: abilityteach
+      POSTGRES_PASSWORD: abilityteach
+      POSTGRES_DB: abilityteach
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U abilityteach -d abilityteach"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  postgres-data:
