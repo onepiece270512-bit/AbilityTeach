@@ -87,20 +87,20 @@ async function main() {
   if (!unit) {
     unit = await db.unit.create({ data: {
       teacherId: teacher.id, classroomId: classroom.id, title: "Algebra: build confidence", subject: "Mathematics", gradeLevel: "Grade 9",
-      description: "A six-lesson journey from algebra patterns to practical problem solving.", objectives: ["Compare and represent fractions", "Add and subtract fractions", "Explain a strategy for a real-world problem"], status: "PUBLISHED",
+      description: "A six-lesson journey from algebra patterns to practical problem solving.", objectives: ["Represent linear relationships", "Solve two-step equations", "Explain a strategy for a real-world problem"], status: "PUBLISHED",
     } });
   }
   if (!(await db.lesson.findFirst({ where: { unitId: unit.id } }))) {
     const lessonSpecs = [
-      ["Understand fractions", "Represent fractions with models and number lines."], ["Equivalent fractions", "Generate and explain equivalent fractions."], ["Add like denominators", "Add fractions with like denominators and estimate the result."], ["Add unlike denominators", "Find a common denominator and add fractions."], ["Subtract fractions", "Subtract fractions and check answers for reasonableness."], ["Fractions in real life", "Choose and explain fraction operations in a practical problem."],
+      ["Explore linear relationships", "Represent a relationship with a table, graph, and rule."], ["Build a rule", "Use a table to find and explain a linear rule."], ["Solve one-step equations", "Use inverse operations to solve one-step equations."], ["Solve two-step equations", "Solve two-step equations and check by substitution."], ["Compare representations", "Connect a graph, table, and equation for the same relationship."], ["Algebra in real life", "Use an equation to represent and solve a practical problem."],
     ];
     for (const [index, [title, objective]] of lessonSpecs.entries()) {
       const lesson = await db.lesson.create({ data: { teacherId: teacher.id, classroomId: classroom.id, unitId: unit.id, title, sequence: index + 1, objective, introduction: `Connect ${title.toLowerCase()} to a familiar situation, then model one example.`, activities: ["See a worked example.", "Talk through the steps.", "Try a short practice problem."], assessment: "Complete one exit question and rate your confidence.", status: "PUBLISHED" } });
       if (index === 3) {
         const material = await db.studyMaterial.create({ data: {
-          teacherId: teacher.id, classroomId: classroom.id, lessonId: lesson.id, title: "Adding fractions: choose a practice path", kind: "STUDY_GUIDE", status: "PUBLISHED",
-          coreContent: "When denominators are different, rename the fractions with a common denominator.\n\nExample: 1/2 + 1/3. A common denominator is 6. Rename: 1/2 = 3/6 and 1/3 = 2/6. Add: 3/6 + 2/6 = 5/6.\n\nCheck: 5/6 is less than 1, which makes sense because each fraction was less than 1.",
-          representations: { visual: "Draw a sixths bar: shade 3/6, then 2/6. Count 5/6.", aural: "Say the steps aloud: find a common denominator, rename, add, check.", readWrite: "Write the worked example in your own words. Add the vocabulary: denominator, equivalent.", kinesthetic: "Use fraction strips or paper folds to build 1/2 and 1/3, then compare the sixths." },
+          teacherId: teacher.id, classroomId: classroom.id, lessonId: lesson.id, title: "Two-step equations: choose a practice path", kind: "STUDY_GUIDE", status: "PUBLISHED",
+          coreContent: "Use inverse operations to solve an equation.\n\nExample: 3x + 4 = 19. Subtract 4: 3x = 15. Divide by 3: x = 5.\n\nCheck: 3(5) + 4 = 19, so the answer works.",
+          representations: { visual: "Draw a balance model: remove 4 from both sides, then split the remaining 15 into 3 equal groups.", aural: "Say the steps aloud: undo addition, undo multiplication, then check your answer.", readWrite: "Write the worked example in your own words. Add the vocabulary: inverse operation, coefficient.", kinesthetic: "Use counters or algebra tiles to model 3 equal groups and a total of 19." },
         } });
         await db.assignment.create({ data: { teacherId: teacher.id, classroomId: classroom.id, materialId: material.id, title: material.title, instructions: "Choose the path that helps you today. You can switch at any time." } });
         await db.studentProgress.upsert({ where: { studentId_lessonId: { studentId: student.id, lessonId: lesson.id } }, update: { status: "IN_PROGRESS", completion: 50 }, create: { studentId: student.id, lessonId: lesson.id, status: "IN_PROGRESS", completion: 50 } });
@@ -108,13 +108,13 @@ async function main() {
     }
   }
 
-  let quiz = await db.quiz.findFirst({ where: { classroomId: classroom.id, title: "Fraction check-in" } });
+  let quiz = await db.quiz.findFirst({ where: { classroomId: classroom.id, title: "Equation check-in" } });
   if (!quiz) quiz = await db.quiz.create({ data: {
-    teacherId: teacher.id, classroomId: classroom.id, title: "Fraction check-in", published: true,
+    teacherId: teacher.id, classroomId: classroom.id, title: "Equation check-in", published: true,
     questions: [
-      { prompt: "What is 1/2 written with denominator 6?", options: ["2/6", "3/6", "4/6"], answer: 1, explanation: "Multiply numerator and denominator by 3." },
-      { prompt: "What is 1/3 + 1/6?", options: ["2/9", "1/2", "2/6"], answer: 1, explanation: "Rename 1/3 as 2/6. Then 2/6 + 1/6 = 3/6 = 1/2." },
-      { prompt: "Which estimate makes sense for 3/4 + 1/8?", options: ["A little less than 1", "About 1/4", "More than 2"], answer: 0, explanation: "3/4 is close to 1, and 1/8 is small. The sum is 7/8." },
+      { prompt: "If 3x = 15, what is x?", options: ["3", "5", "18"], answer: 1, explanation: "Divide both sides by 3." },
+      { prompt: "Solve 2x + 5 = 17.", options: ["5", "6", "11"], answer: 1, explanation: "Subtract 5 from both sides, then divide by 2. x = 6." },
+      { prompt: "Which value makes 4x - 3 = 13 true?", options: ["2", "4", "7"], answer: 0, explanation: "Substitute 4: 16 - 3 = 13." },
     ],
   } });
   if (!(await db.quizAttempt.findFirst({ where: { studentId: student.id, quizId: quiz.id } }))) {
@@ -122,7 +122,7 @@ async function main() {
   }
   await db.integration.upsert({ where: { userId_provider: { userId: teacher.id, provider: "GOOGLE_CLASSROOM" } }, update: { status: "DEMO_ONLY" }, create: { userId: teacher.id, provider: "GOOGLE_CLASSROOM", status: "DEMO_ONLY", metadata: { message: "Integration is a demo placeholder; OAuth credentials are not configured." } } });
 
-  console.log("Seeded AbilityTeach demo school, accounts, class, fractions unit, study material, and quiz.");
+  console.log("Seeded AbilityTeach demo school, accounts, class, Grade 9 algebra unit, study material, and quiz.");
   console.log("Demo password for teacher, student, and admin: LearnTogether2026!");
 }
 
