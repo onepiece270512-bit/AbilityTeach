@@ -1,9 +1,11 @@
-import { calculateVark, surveyQuestions, type VarkScores } from "@/lib/vark";
+import { calculateVark, quickSurveyQuestions, surveyQuestions, type VarkScores } from "@/lib/vark";
 
 export type SurveyAnswers = Record<string, string | string[]>;
 
 export function surveyAnswersError(answers: SurveyAnswers): string | null {
-  for (const question of surveyQuestions) {
+  const isQuick = Object.keys(answers).length === quickSurveyQuestions.length && quickSurveyQuestions.every((question) => question.id in answers);
+  const questions = isQuick ? quickSurveyQuestions : surveyQuestions;
+  for (const question of questions) {
     const selected = answers[question.id];
     if (!selected) return "Please answer each question. You can choose ‘I'm still figuring that out’ where shown.";
     const values = Array.isArray(selected) ? selected : [selected];
