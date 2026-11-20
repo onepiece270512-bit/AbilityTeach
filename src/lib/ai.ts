@@ -16,10 +16,10 @@ export const unitPlanSchema = z.object({
 
 export type UnitPlan = z.infer<typeof unitPlanSchema>;
 
-function demoUnit(subject: string, grade: string, topic: string): UnitPlan {
+function demoUnit(subject: string, grade: string, topic: string, studentContext?: string, revisionRequest?: string): UnitPlan {
   const topicTitle = topic.trim().slice(0, 90) || "Our next topic";
   return {
-    description: `A flexible ${grade} ${subject} unit to explore ${topicTitle} through clear examples, conversation, reading, and practice.`,
+    description: `A flexible ${grade} ${subject} unit to explore ${topicTitle} through clear examples, conversation, reading, and practice.${studentContext ? ` Planned using this anonymous class snapshot: ${studentContext}` : ""}${revisionRequest ? ` Teacher change request: ${revisionRequest}` : ""}`,
     objectives: [
       `Explain the key ideas in ${topicTitle}.`,
       `Use ${topicTitle} to solve a new problem or explain an example.`,
@@ -56,18 +56,20 @@ async function askModel(system: string, prompt: string, allowExternal = true) {
   return content;
 }
 
-export async function generateUnitPlan(input: { subject: string; grade: string; topic: string; objectives?: string; curriculum?: string }) {
+export async function generateUnitPlan(input: { subject: string; grade: string; topic: string; objectives?: string; curriculum?: string; studentContext?: string; revisionRequest?: string }) {
   const prompt = [
     `Subject: ${input.subject}`, `Grade: ${input.grade}`, `Topic: ${input.topic}`,
     input.objectives ? `Teacher learning goals: ${input.objectives}` : "",
     input.curriculum ? `Curriculum excerpt: ${input.curriculum.slice(0, 6000)}` : "",
+    input.studentContext ? `Anonymous class learning and progress snapshot: ${input.studentContext}` : "",
+    input.revisionRequest ? `Teacher requested change: ${input.revisionRequest}` : "",
     "Create a 6-lesson unit. Use varied teaching activities so every student can access the same learning goals. Do not assign fixed learner types. Return JSON with description, objectives (array), and lessons (array of title, objective, introduction, activities array, assessment, duration).",
   ].filter(Boolean).join("\n");
   const raw = await askModel(
     "You are a careful teacher co-planner. Use clear, age-appropriate language. Keep the curriculum goals central. Never infer disability, intelligence, or fixed ability. Do not include identifiable student information. Return only valid JSON.",
     prompt,
   );
-  if (!raw) return { plan: demoUnit(input.subject, input.grade, input.topic), demo: true };
+  if (!raw) return { plan: demoUnit(input.subject, input.grade, input.topic, input.studentContext, input.revisionRequest), demo: true };
   return { plan: unitPlanSchema.parse(JSON.parse(raw)), demo: false };
 }
 
