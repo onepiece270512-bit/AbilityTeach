@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { submitQuizAction } from "@/app/actions/platform";
+import { QuizForm } from "@/components/quiz-form";
 
 type QuizQuestion = { prompt: string; options: string[]; answer: number; explanation?: string };
 export default async function StudentProgressPage({ searchParams }: { searchParams: Promise<{ score?: string; total?: string }> }) {
@@ -18,7 +18,7 @@ export default async function StudentProgressPage({ searchParams }: { searchPara
   return <AppShell user={student}><div className="page-header"><div><span className="eyebrow">MY PROGRESS</span><h1>Every try counts.</h1><p>Your saved practice history—not a guess at what you know.</p></div></div>{resultMessage && <div role="status" className="form-message success">{resultMessage}</div>}
     <div className="content-grid"><section className="panel"><div className="panel-header"><div><h2>Practice quizzes</h2><p>Try one when you're ready.</p></div></div>{quizzes.length ? quizzes.map((quiz) => {
       const questions = quiz.questions as QuizQuestion[];
-      return <form action={submitQuizAction} className="quiz-form" key={quiz.id}><input type="hidden" name="quizId" value={quiz.id}/><h3>{quiz.title}</h3><p className="form-hint">{quiz.classroom.name} · {questions.length} questions</p>{questions.map((question,index)=><fieldset className="quiz-question" key={`${quiz.id}-${index}`}><legend>{index+1}. {question.prompt}</legend>{question.options.map((option,optionIndex)=><label className="quiz-answer" key={option}><input type="radio" name={`answer-${index}`} value={optionIndex} required/><span>{option}</span></label>)}</fieldset>)}<button className="button button-primary">Submit my answers</button></form>;
+      return <QuizForm key={quiz.id} quiz={{ ...quiz, questions }} />;
     }) : <div className="empty-state"><b>No quiz yet</b><p>Your teacher's practice quizzes will appear here.</p></div>}</section>
       <section className="panel"><div className="panel-header"><div><h2>Quiz history</h2><p>Scores saved from your actual attempts</p></div></div>{attempts.length ? <table className="data-table"><thead><tr><th>Quiz</th><th>Score</th><th>Date</th></tr></thead><tbody>{attempts.map((attempt)=><tr key={attempt.id}><td>{attempt.quiz.title}</td><td>{attempt.score}/{attempt.total}</td><td>{attempt.completedAt.toLocaleDateString()}</td></tr>)}</tbody></table> : <div className="empty-state"><p>Your scores will show here after you finish a quiz.</p></div>}</section></div>
     <div className="content-grid"><section className="panel"><div className="panel-header"><div><h2>Lessons I've worked on</h2><p>Progress based on activities and teacher updates</p></div></div>{progress.length ? <div className="profile-list">{progress.map((item)=><div className="profile-row" key={item.id}><div><b>{item.lesson.title}</b><small>{item.status.replaceAll("_"," ").toLowerCase()}</small></div><span className="status-pill">{item.completion}%</span></div>)}</div> : <p className="form-hint">Lesson progress appears when you work through assigned lessons.</p>}</section>
