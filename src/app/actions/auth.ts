@@ -38,6 +38,7 @@ export async function loginAction(_previous: ActionState, formData: FormData): P
   await db.authRateLimit.deleteMany({ where: { emailHash } });
   await createSession(user.id);
   await logAudit(user.id, "LOGIN", "User", user.id);
+  if (user.email === "priya@abilityteach.demo") redirect("/student/survey?quick=1&welcome=1");
   redirect(destinationFor({ ...user, schoolId: user.schoolId, gradeLevel: user.gradeLevel, subject: user.subject, learningMode: user.learningMode, fontSize: user.fontSize, guardianConsent: user.guardianConsent }));
 }
 
