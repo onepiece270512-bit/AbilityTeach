@@ -9,10 +9,10 @@ async function main() {
   const passwordHash = await bcrypt.hash(demoPassword, 12);
   const school = await db.school.upsert({ where: { name: "AbilityTeach Demo School" }, update: {}, create: { name: "AbilityTeach Demo School" } });
   const teacher = await db.user.upsert({ where: { email: "teacher@abilityteach.demo" }, update: { teacherApproved: true, schoolId: school.id, passwordHash }, create: { name: "Jordan Lee", email: "teacher@abilityteach.demo", passwordHash, role: "TEACHER", teacherApproved: true, schoolId: school.id, subject: "Mathematics" } });
-  const student = await db.user.upsert({ where: { email: "priya@abilityteach.demo" }, update: { schoolId: school.id, gradeLevel: "Grade 8", passwordHash }, create: { name: "Priya Patel", email: "priya@abilityteach.demo", passwordHash, role: "STUDENT", schoolId: school.id, schoolManaged: true, guardianConsent: true, gradeLevel: "Grade 8" } });
+  const student = await db.user.upsert({ where: { email: "priya@abilityteach.demo" }, update: { schoolId: school.id, gradeLevel: "Grade 9", passwordHash }, create: { name: "Priya Patel", email: "priya@abilityteach.demo", passwordHash, role: "STUDENT", schoolId: school.id, schoolManaged: true, guardianConsent: true, gradeLevel: "Grade 9" } });
   await db.user.upsert({ where: { email: "admin@abilityteach.demo" }, update: { passwordHash, teacherApproved: true }, create: { name: "School administrator", email: "admin@abilityteach.demo", passwordHash, role: "ADMIN", teacherApproved: true, schoolId: school.id } });
 
-  const classroom = await db.classroom.upsert({ where: { joinCode: "FRACT8A" }, update: { teacherId: teacher.id, schoolId: school.id }, create: { name: "Grade 8 Mathematics", subject: "Mathematics", gradeLevel: "Grade 8", joinCode: "FRACT8A", teacherId: teacher.id, schoolId: school.id } });
+  const classroom = await db.classroom.upsert({ where: { joinCode: "FRACT8A" }, update: { teacherId: teacher.id, schoolId: school.id, name: "Grade 9 Mathematics", subject: "Mathematics", gradeLevel: "Grade 9" }, create: { name: "Grade 9 Mathematics", subject: "Mathematics", gradeLevel: "Grade 9", joinCode: "FRACT8A", teacherId: teacher.id, schoolId: school.id } });
   await db.enrollment.upsert({ where: { studentId_classroomId: { studentId: student.id, classroomId: classroom.id } }, update: {}, create: { studentId: student.id, classroomId: classroom.id } });
   await db.learningProfile.upsert({ where: { studentId: student.id }, update: { visual: 2, aural: 2, readWrite: 3, kinesthetic: 3, confidence: 3, difficultTopics: ["maths"], strategies: ["Read the key ideas, then try a worked example.", "Talk through the steps with a partner."] }, create: { studentId: student.id, visual: 2, aural: 2, readWrite: 3, kinesthetic: 3, confidence: 3, difficultTopics: ["maths"], strategies: ["Read the key ideas, then try a worked example.", "Talk through the steps with a partner."] } });
 
@@ -26,14 +26,29 @@ async function main() {
     { name: "Leo Martin", email: "leo.martin@class.abilityteach.demo", modality: "readWrite" },
     { name: "Sofia Rivera", email: "sofia.rivera@class.abilityteach.demo", modality: "kinesthetic" },
     { name: "Avery Wilson", email: "avery.wilson@class.abilityteach.demo", modality: "mixed" },
+    { name: "Noah Thompson", email: "noah.thompson@class.abilityteach.demo", modality: "visual" },
+    { name: "Emma Davis", email: "emma.davis@class.abilityteach.demo", modality: "aural" },
+    { name: "Liam Garcia", email: "liam.garcia@class.abilityteach.demo", modality: "readWrite" },
+    { name: "Olivia Kim", email: "olivia.kim@class.abilityteach.demo", modality: "kinesthetic" },
+    { name: "Mateo Singh", email: "mateo.singh@class.abilityteach.demo", modality: "visual" },
+    { name: "Amira Hassan", email: "amira.hassan@class.abilityteach.demo", modality: "aural" },
+    { name: "Lucas Brown", email: "lucas.brown@class.abilityteach.demo", modality: "readWrite" },
+    { name: "Zoe Wilson", email: "zoe.wilson@class.abilityteach.demo", modality: "kinesthetic" },
+    { name: "Arjun Shah", email: "arjun.shah@class.abilityteach.demo", modality: "visual" },
+    { name: "Isabella Moore", email: "isabella.moore@class.abilityteach.demo", modality: "aural" },
+    { name: "Jack Taylor", email: "jack.taylor@class.abilityteach.demo", modality: "readWrite" },
+    { name: "Ava Patel", email: "ava.patel@class.abilityteach.demo", modality: "kinesthetic" },
+    { name: "Mason Clark", email: "mason.clark@class.abilityteach.demo", modality: "visual" },
+    { name: "Chloe Nguyen", email: "chloe.nguyen@class.abilityteach.demo", modality: "aural" },
+    { name: "Benjamin Scott", email: "benjamin.scott@class.abilityteach.demo", modality: "kinesthetic" },
   ] as const;
   for (const [index, classmate] of classmates.entries()) {
     const privatePassword = randomBytes(32).toString("hex");
     const passwordHash = await bcrypt.hash(privatePassword, 12);
     const classmateUser = await db.user.upsert({
       where: { email: classmate.email },
-      update: { schoolId: school.id, gradeLevel: "Grade 8" },
-      create: { name: classmate.name, email: classmate.email, passwordHash, role: "STUDENT", schoolId: school.id, schoolManaged: true, gradeLevel: "Grade 8" },
+      update: { schoolId: school.id, gradeLevel: "Grade 9" },
+      create: { name: classmate.name, email: classmate.email, passwordHash, role: "STUDENT", schoolId: school.id, schoolManaged: true, gradeLevel: "Grade 9" },
     });
     await db.enrollment.upsert({
       where: { studentId_classroomId: { studentId: classmateUser.id, classroomId: classroom.id } },
@@ -65,14 +80,14 @@ async function main() {
     }
   }
 
-  const document = await db.curriculumDocument.findFirst({ where: { teacherId: teacher.id, title: "Fractions curriculum notes" } });
-  if (!document) await db.curriculumDocument.create({ data: { teacherId: teacher.id, classroomId: classroom.id, title: "Fractions curriculum notes", sourceType: "text", content: "Students compare fractions, generate equivalent fractions, add and subtract fractions with like and unlike denominators, and apply fraction operations in practical contexts. Emphasize models, number lines, estimation, and explaining reasoning." } });
+  const document = await db.curriculumDocument.findFirst({ where: { teacherId: teacher.id, title: "Grade 9 Algebra curriculum notes" } });
+  if (!document) await db.curriculumDocument.create({ data: { teacherId: teacher.id, classroomId: classroom.id, title: "Grade 9 Algebra curriculum notes", sourceType: "text", content: "Students use linear relations, solve two-step equations, compare representations of relationships, and explain how changing a variable affects an equation. Emphasize clear worked examples, graphs, discussion, written reasoning, and practical problems." } });
 
-  let unit = await db.unit.findFirst({ where: { classroomId: classroom.id, title: "Fractions: build confidence" } });
+  let unit = await db.unit.findFirst({ where: { classroomId: classroom.id, title: "Algebra: build confidence" } });
   if (!unit) {
     unit = await db.unit.create({ data: {
-      teacherId: teacher.id, classroomId: classroom.id, title: "Fractions: build confidence", subject: "Mathematics", gradeLevel: "Grade 8",
-      description: "A six-lesson journey from fraction models to practical problem solving.", objectives: ["Compare and represent fractions", "Add and subtract fractions", "Explain a strategy for a real-world problem"], status: "PUBLISHED",
+      teacherId: teacher.id, classroomId: classroom.id, title: "Algebra: build confidence", subject: "Mathematics", gradeLevel: "Grade 9",
+      description: "A six-lesson journey from algebra patterns to practical problem solving.", objectives: ["Compare and represent fractions", "Add and subtract fractions", "Explain a strategy for a real-world problem"], status: "PUBLISHED",
     } });
   }
   if (!(await db.lesson.findFirst({ where: { unitId: unit.id } }))) {
