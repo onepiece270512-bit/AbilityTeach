@@ -19,7 +19,7 @@ export type UnitPlan = z.infer<typeof unitPlanSchema>;
 function demoUnit(subject: string, grade: string, topic: string, studentContext?: string, revisionRequest?: string): UnitPlan {
   const topicTitle = topic.trim().slice(0, 90) || "Our next topic";
   const modalityMatch = studentContext?.match(/Aggregate VARK selections: visual (\\d+), aural (\\d+), read\\/write (\\d+), hands-on (\\d+)/);
-  const modalities = modalityMatch ? [
+  const modalities: Array<[string, number]> = modalityMatch ? [
     ["visual", Number(modalityMatch[1])], ["aural", Number(modalityMatch[2])],
     ["read/write", Number(modalityMatch[3])], ["hands-on", Number(modalityMatch[4])],
   ].sort((a, b) => b[1] - a[1]) : [];
