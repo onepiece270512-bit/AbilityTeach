@@ -10,7 +10,7 @@ export default async function StudentMaterialPage({ params, searchParams }: { pa
   const student = await requireUser("STUDENT");
   const { materialId } = await params;
   const [material, progress, query] = await Promise.all([
-    db.studyMaterial.findFirst({ where: { id: materialId, status: "PUBLISHED", assignments: { some: { classroom: { enrollments: { some: { studentId: student.id } } } } }, include: { classroom: true } }),
+    db.studyMaterial.findFirst({ where: { id: materialId, status: "PUBLISHED", assignments: { some: { classroom: { enrollments: { some: { studentId: student.id } } } } } }, include: { classroom: true } }),
     db.studyMaterialProgress.findUnique({ where: { studentId_materialId: { studentId: student.id, materialId } } }),
     searchParams,
   ]);
