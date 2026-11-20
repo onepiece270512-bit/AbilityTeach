@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState, useRef, useState } from "react";
 import { loginAction, registerAction } from "@/app/actions/auth";
-import { BookOpen, GraduationCap, UserRound } from "lucide-react";
+import { GraduationCap, UserRound } from "lucide-react";
 
 export function LoginForm() {
   const [state, action, pending] = useActionState(loginAction, {});
@@ -32,6 +32,7 @@ export function LoginForm() {
     {state.error && <p className="form-message error" role="alert">{state.error}</p>}
     <button className="button button-primary full" disabled={pending}>{pending ? "Signing in…" : "Sign in"}</button>
   </form>;
+}
 
 export function RegisterForm() {
   const [state, action, pending] = useActionState(registerAction, {});
