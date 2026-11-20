@@ -9,7 +9,7 @@ export default async function TeacherDashboard() {
   const classrooms = await db.classroom.findMany({ where: { teacherId: teacher.id }, include: { _count: { select: { enrollments: true, assignments: true } } }, orderBy: { createdAt: "desc" } });
   const [enrollments, completedSurveyIds, assignmentCount, recentAttempts, recentUnits] = await Promise.all([
     db.enrollment.findMany({ where: { classroom: { teacherId: teacher.id } }, include: { student: { include: { profile: true } }, classroom: true } }),
-    db.surveyResponse.findMany({ where: { student: { enrollments: { some: { classroom: { teacherId: teacher.id } } } }, orderBy: { completedAt: "desc" }, distinct: ["studentId"], select: { studentId: true } }),
+    db.surveyResponse.findMany({ where: { student: { enrollments: { some: { classroom: { teacherId: teacher.id } } } } }, orderBy: { completedAt: "desc" }, distinct: ["studentId"], select: { studentId: true } }),
     db.assignment.count({ where: { classroom: { teacherId: teacher.id } } }),
     db.quizAttempt.findMany({ where: { quiz: { classroom: { teacherId: teacher.id } } }, include: { student: true, quiz: true }, orderBy: { completedAt: "desc" }, take: 5 }),
     db.unit.findMany({ where: { teacherId: teacher.id }, include: { classroom: true, _count: { select: { lessons: true } } }, orderBy: { updatedAt: "desc" }, take: 4 }),
