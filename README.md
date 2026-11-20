@@ -6,7 +6,7 @@ AbilityTeach is an AI-assisted curriculum and learning platform for teachers and
 
 Open the repository on GitHub, choose **Code → Codespaces → Create codespace on main**, and wait for setup to finish. Codespaces starts PostgreSQL, creates the schema and Priya demo data, then launches the app and forwards port 3000 to your browser. GitHub documents this workflow through the repository's `.devcontainer` configuration and forwarded ports.
 
-If port 3000 does not open automatically, select the **Ports** panel in Codespaces and open port 3000.
+The preview opens in the VS Code editor when port 3000 is forwarded. If it does not, select the **Ports** panel, then choose **Preview in Editor** for port 3000. If you already had this Codespace open before these settings changed, rebuild the Codespace once so it picks up the preview setting.
 
 ## Run locally
 
