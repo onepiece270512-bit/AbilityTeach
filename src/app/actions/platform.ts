@@ -61,7 +61,7 @@ export async function saveSurveyAction(_previous: ActionState, formData: FormDat
     }),
   ]);
   await logAudit(student.id, "SURVEY_COMPLETED", "LearningProfile", student.id);
-  redirect("/student/dashboard?survey=complete");
+  redirect("/student/survey?result=1");
 }
 
 function buildStrategies(scores: ReturnType<typeof calculateVark>) {
