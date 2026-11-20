@@ -18,6 +18,34 @@ export type UnitPlan = z.infer<typeof unitPlanSchema>;
 
 function demoUnit(subject: string, grade: string, topic: string, studentContext?: string, revisionRequest?: string): UnitPlan {
   const topicTitle = topic.trim().slice(0, 90) || "Our next topic";
+  const modalityMatch = studentContext?.match(/Aggregate VARK selections: visual (\\d+), aural (\\d+), read\\/write (\\d+), hands-on (\\d+)/);
+  const modalities = modalityMatch ? [
+    ["visual", Number(modalityMatch[1])], ["aural", Number(modalityMatch[2])],
+    ["read/write", Number(modalityMatch[3])], ["hands-on", Number(modalityMatch[4])],
+  ].sort((a, b) => b[1] - a[1]) : [];
+  const classStrategy = modalities.length && modalities[0][1] > 0
+    ? "Class snapshot: build in choice with " + modalities.slice(0, 2).map(([name]) => name + " examples, while keeping every format available.")
+    : "Offer students a choice of diagram, spoken explanation, written notes, or hands-on practice.";
+  const lowQuiz = Boolean(studentContext?.match(/Average recorded quiz score: (\\d+)%/) && Number(studentContext.match(/Average recorded quiz score: (\\d+)%/)?.[1]) < 70);
+  const revision = revisionRequest?.toLowerCase() || "";
+  const changeActivity = revision.includes("hand") || revision.includes("practical")
+    ? "Teacher revision: add a hands-on model or real-world practice task."
+    : revision.includes("diagram") || revision.includes("visual")
+      ? "Teacher revision: add a labelled diagram or visual worked example."
+      : revision.includes("simple") || revision.includes("easier")
+        ? "Teacher revision: break the explanation into smaller steps and model one example."
+        : revision.includes("worked") || revision.includes("example")
+          ? "Teacher revision: add a worked example with each step explained."
+          : revisionRequest ? "Teacher revision: " + revisionRequest.slice(0, 180) : "";
+  const lessons: UnitPlan["lessons"] = [
+      { title: `Meet ${topicTitle}`, objective: `Describe the main idea behind ${topicTitle}.`, introduction: "Start with a familiar example. Ask students what they notice and wonder.", activities: ["Look at a worked example and mark what stands out.", "Turn and talk: explain the idea in your own words.", "Write or draw one question you still have."], assessment: "Exit note: one thing I understand and one question I have.", duration: 45 },
+      { title: "Make sense of the parts", objective: `Identify the important parts of ${topicTitle}.`, introduction: "Connect yesterday's question to today's example.", activities: ["Sort examples and non-examples.", "Build a labelled diagram or step list.", "Explain one choice to a partner."], assessment: "Quick sort with a one-sentence explanation.", duration: 45 },
+      { title: "Try a new example", objective: `Apply ${topicTitle} to a new example.`, introduction: "Model one problem, including a mistake and how to fix it.", activities: ["Solve one problem together.", "Choose a written, visual, or hands-on practice path.", "Compare strategies with a classmate."], assessment: "Teacher checks a practice response and gives one next step.", duration: 50 },
+      { title: "Practise and explain", objective: `Use key vocabulary to explain ${topicTitle}.`, introduction: "Review the words students need, with examples in context.", activities: ["Match words to examples.", "Create a short explanation for a younger learner.", "Try two practice questions and check your work."], assessment: "Two-question check with confidence rating.", duration: 45 },
+      { title: "Use it in context", objective: `Connect ${topicTitle} to a real-world situation.`, introduction: "Explore a practical scenario connected to the topic.", activities: ["Choose a scenario and identify the relevant idea.", "Make a model, written plan, or spoken explanation.", "Share what you would try next."], assessment: "Short applied task with a teacher feedback note.", duration: 50 },
+      { title: "Review and reflect", objective: `Show what you know about ${topicTitle} and plan what to practise next.`, introduction: "Revisit the unit questions and notice progress.", activities: ["Complete a short mixed-format practice set.", "Pick a question and explain your steps.", "Set a personal next-practice goal."], assessment: "Teacher-reviewed check; use results to plan follow-up.", duration: 45 },
+    ];
+  const dataActivity = lowQuiz ? "Add one guided practice example, then check understanding before moving on." : classStrategy;
   return {
     description: `A flexible ${grade} ${subject} unit to explore ${topicTitle} through clear examples, conversation, reading, and practice.${studentContext ? ` Planned using this anonymous class snapshot: ${studentContext}` : ""}${revisionRequest ? ` Teacher change request: ${revisionRequest}` : ""}`,
     objectives: [
@@ -25,14 +53,11 @@ function demoUnit(subject: string, grade: string, topic: string, studentContext?
       `Use ${topicTitle} to solve a new problem or explain an example.`,
       "Reflect on which strategies helped and choose another way to practise.",
     ],
-    lessons: [
-      { title: `Meet ${topicTitle}`, objective: `Describe the main idea behind ${topicTitle}.`, introduction: "Start with a familiar example. Ask students what they notice and wonder.", activities: ["Look at a worked example and mark what stands out.", "Turn and talk: explain the idea in your own words.", "Write or draw one question you still have."], assessment: "Exit note: one thing I understand and one question I have.", duration: 45 },
-      { title: "Make sense of the parts", objective: `Identify the important parts of ${topicTitle}.`, introduction: "Connect yesterday's question to today's example.", activities: ["Sort examples and non-examples.", "Build a labelled diagram or step list.", "Explain one choice to a partner."], assessment: "Quick sort with a one-sentence explanation.", duration: 45 },
-      { title: "Try a new example", objective: `Apply ${topicTitle} to a new example.`, introduction: "Model one problem, including a mistake and how to fix it.", activities: ["Solve one problem together.", "Choose a written, visual, or hands-on practice path.", "Compare strategies with a classmate."], assessment: "Teacher checks a practice response and gives one next step.", duration: 50 },
-      { title: "Practise and explain", objective: `Use key vocabulary to explain ${topicTitle}.`, introduction: "Review the words students need, with examples in context.", activities: ["Match words to examples.", "Create a short explanation for a younger learner.", "Try two practice questions and check your work."], assessment: "Two-question check with confidence rating.", duration: 45 },
-      { title: "Use it in context", objective: `Connect ${topicTitle} to a real-world situation.`, introduction: "Explore a practical scenario connected to the topic.", activities: ["Choose a scenario and identify the relevant idea.", "Make a model, written plan, or spoken explanation.", "Share what you would try next."], assessment: "Short applied task with a teacher feedback note.", duration: 50 },
-      { title: "Review and reflect", objective: `Show what you know about ${topicTitle} and plan what to practise next.`, introduction: "Revisit the unit questions and notice progress.", activities: ["Complete a short mixed-format practice set.", "Pick a question and explain your steps.", "Set a personal next-practice goal."], assessment: "Teacher-reviewed check; use results to plan follow-up.", duration: 45 },
-    ],
+    lessons: lessons.map((lesson, index) => ({
+      ...lesson,
+      activities: [...lesson.activities.slice(0, 3), index === 0 && changeActivity ? changeActivity : index === 0 ? classStrategy : dataActivity].slice(0, 5),
+      introduction: index === 0 && changeActivity ? lesson.introduction + " " + changeActivity : lesson.introduction,
+    })),
   };
 }
 
