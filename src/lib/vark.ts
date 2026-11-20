@@ -34,9 +34,22 @@ export const surveyQuestions = [
   ] },
 ];
 
+
+export const quickSurveyQuestions = [
+  { id: "quick-new-skill", category: "preferences", prompt: "You’re learning something new. What would help you get started?", options: [
+    { label: "A picture, diagram, or map", key: "visual" }, { label: "Someone talking it through", key: "aural" }, { label: "Short written steps", key: "readWrite" }, { label: "A chance to try it yourself", key: "kinesthetic" },
+  ] },
+  { id: "quick-remember", category: "preferences", prompt: "How would you like to remember a new idea?", options: [
+    { label: "See a chart or worked example", key: "visual" }, { label: "Explain it out loud with someone", key: "aural" }, { label: "Write a few notes in my own words", key: "readWrite" }, { label: "Use it in a practice activity", key: "kinesthetic" },
+  ] },
+  { id: "quick-show", category: "preferences", prompt: "How would you show someone you understand?", options: [
+    { label: "Draw or build a model", key: "visual" }, { label: "Talk them through it", key: "aural" }, { label: "Write a clear answer", key: "readWrite" }, { label: "Demonstrate it by doing it", key: "kinesthetic" },
+  ] },
+] as const;
+
 export function calculateVark(answers: Record<string, string | string[]>): VarkScores {
   const scores: VarkScores = { visual: 0, aural: 0, readWrite: 0, kinesthetic: 0 };
-  for (const question of surveyQuestions) {
+  for (const question of [...surveyQuestions, ...quickSurveyQuestions]) {
     const answer = answers[question.id];
     const values = Array.isArray(answer) ? answer : answer ? [answer] : [];
     for (const value of values) {
