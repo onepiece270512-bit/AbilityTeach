@@ -74,6 +74,24 @@ function buildStrategies(scores: ReturnType<typeof calculateVark>) {
   return Object.entries(scores).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([key]) => descriptions[key as keyof typeof scores]);
 }
 
+async function anonymousClassSnapshot(classroomId: string) {
+  const enrollments = await db.enrollment.findMany({ where: { classroomId }, select: { student: { select: { profile: { select: { visual: true, aural: true, readWrite: true, kinesthetic: true, difficultTopics: true } } } } } });
+  const totals = { visual: 0, aural: 0, readWrite: 0, kinesthetic: 0 };
+  const topics = new Map<string, number>();
+  let profiled = 0;
+  for (const enrollment of enrollments) {
+    const profile = enrollment.student.profile;
+    if (!profile) continue;
+    profiled += 1; totals.visual += profile.visual; totals.aural += profile.aural; totals.readWrite += profile.readWrite; totals.kinesthetic += profile.kinesthetic;
+    const difficulty = Array.isArray(profile.difficultTopics) ? profile.difficultTopics : [];
+    for (const raw of difficulty) if (typeof raw === "string") topics.set(raw, (topics.get(raw) || 0) + 1);
+  }
+  const attempts = await db.quizAttempt.findMany({ where: { quiz: { classroomId } }, select: { score: true, total: true } });
+  const average = attempts.length ? Math.round(attempts.reduce((sum, attempt) => sum + (attempt.total ? attempt.score / attempt.total : 0), 0) / attempts.length * 100) : null;
+  const commonTopics = [...topics.entries()].sort((a,b)=>b[1]-a[1]).slice(0,3).map(([topic,count])=>topic+" ("+count+")");
+  return "Class size: "+enrollments.length+". Learning preference responses: "+profiled+". Aggregate VARK selections: visual "+totals.visual+", aural "+totals.aural+", read/write "+totals.readWrite+", hands-on "+totals.kinesthetic+". Frequently reported practice topics: "+(commonTopics.join(", ") || "not enough responses yet")+". Average recorded quiz score: "+(average === null ? "no quiz attempts yet" : average+"% across "+attempts.length+" attempts")+". These are class-wide patterns, not fixed labels or judgements about individual students.";
+}
+
 export async function generateUnitAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const teacher = await requireUser("TEACHER");
   const parsed = z.object({ classroomId: z.string().min(1), topic: z.string().trim().min(3).max(120), objectives: z.string().trim().max(800).optional(), curriculum: z.string().trim().max(6000).optional(), documentId: z.string().optional() }).safeParse({
@@ -86,7 +104,8 @@ export async function generateUnitAction(_previous: ActionState, formData: FormD
     const document = parsed.data.documentId ? await db.curriculumDocument.findFirst({ where: { id: parsed.data.documentId, teacherId: teacher.id, OR: [{ classroomId: classroom.id }, { classroomId: null }] } }) : null;
     if (parsed.data.documentId && !document) return { error: "Choose a curriculum document that belongs to you and this class." };
     const curriculum = [document?.content, parsed.data.curriculum].filter(Boolean).join("\n\n");
-    const { plan, demo } = await generateUnitPlan({ subject: classroom.subject, grade: classroom.gradeLevel, topic: parsed.data.topic, objectives: parsed.data.objectives, curriculum });
+    const studentContext = await anonymousClassSnapshot(classroom.id);
+    const { plan, demo } = await generateUnitPlan({ subject: classroom.subject, grade: classroom.gradeLevel, topic: parsed.data.topic, objectives: parsed.data.objectives, curriculum, studentContext });
     const unit = await db.unit.create({
       data: {
         teacherId: teacher.id, classroomId: classroom.id, title: `${parsed.data.topic} unit`, subject: classroom.subject,
@@ -138,7 +157,10 @@ export async function regenerateLessonAction(_previous: ActionState, formData: F
   const lesson = await db.lesson.findFirst({ where: { id: lessonId, teacherId: teacher.id, status: "DRAFT", unit: { status: "DRAFT" } }, include: { classroom: true } });
   if (!lesson) return { error: "Only your private draft lessons can be regenerated." };
   try {
-    const { plan } = await generateUnitPlan({ subject: lesson.classroom.subject, grade: lesson.classroom.gradeLevel, topic: lesson.title, objectives: lesson.objective, curriculum: lesson.introduction });
+    const studentContext = await anonymousClassSnapshot(lesson.classroomId);
+    const changeRequest = z.string().trim().max(800).optional().safeParse(formData.get("changeRequest") || undefined);
+    if (!changeRequest.success) return { error: "Keep the requested change under 800 characters." };
+    const { plan } = await generateUnitPlan({ subject: lesson.classroom.subject, grade: lesson.classroom.gradeLevel, topic: lesson.title, objectives: lesson.objective, curriculum: lesson.introduction, studentContext, revisionRequest: changeRequest.data });
     const refreshed = plan.lessons[0];
     await db.lesson.update({ where: { id: lesson.id }, data: { objective: refreshed.objective, introduction: refreshed.introduction, activities: refreshed.activities as Prisma.InputJsonValue, assessment: refreshed.assessment, duration: refreshed.duration } });
     await logAudit(teacher.id, "LESSON_SECTION_REGENERATED", "Lesson", lesson.id);
@@ -288,7 +310,8 @@ export async function teacherAssistantAction(_previous: ActionState, formData: F
   if (!parsed.success) return { error: "Choose a class and ask a question (at least 5 characters)." };
   const classroom = await db.classroom.findFirst({ where: { id: parsed.data.classroomId, teacherId: teacher.id }, include: { documents: { take: 5, orderBy: { createdAt: "desc" } }, units: { take: 5, orderBy: { updatedAt: "desc" }, include: { lessons: true } } } });
   if (!classroom) return { error: "That class isn't in your account." };
-  const context = [...classroom.documents.map((doc) => doc.content), ...classroom.units.flatMap((unit) => [`${unit.title}: ${unit.description}`, ...unit.lessons.map((lesson) => `${lesson.title}: ${lesson.objective}`)])].join("\n");
+  const studentContext = await anonymousClassSnapshot(classroom.id);
+  const context = [...classroom.documents.map((doc) => doc.content), ...classroom.units.flatMap((unit) => [`${unit.title}: ${unit.description}`, ...unit.lessons.map((lesson) => `${lesson.title}: ${lesson.objective}`)]), studentContext].join("\n");
   try {
     const result = await teachingReply(parsed.data.prompt, context);
     const conversation = await db.aIConversation.create({ data: { userId: teacher.id, classroomId: classroom.id, title: parsed.data.prompt.slice(0, 80), isDemoMode: result.demo, messages: [{ role: "user", content: parsed.data.prompt }, { role: "assistant", content: result.reply }] } });
