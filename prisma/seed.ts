@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import { randomBytes } from "node:crypto";
 import { PrismaClient } from "@prisma/client";
 
 const db = new PrismaClient();
@@ -17,6 +18,51 @@ async function main() {
 
   if (!(await db.surveyResponse.findFirst({ where: { studentId: student.id } }))) {
     await db.surveyResponse.create({ data: { studentId: student.id, classroomId: classroom.id, confidence: 3, difficultTopics: ["maths"], answers: { "new-topic": "readWrite", remember: "kinesthetic", instructions: "readWrite", study: "kinesthetic", show: "aural", stuck: "visual", group: "aural", confidence: "confidence-3", "hard-topics": ["topic-maths"], change: "yes" } } });
+  }
+
+  const classmates = [
+    { name: "Maya Chen", email: "maya.chen@class.abilityteach.demo", modality: "visual" },
+    { name: "Ethan Brooks", email: "ethan.brooks@class.abilityteach.demo", modality: "aural" },
+    { name: "Leo Martin", email: "leo.martin@class.abilityteach.demo", modality: "readWrite" },
+    { name: "Sofia Rivera", email: "sofia.rivera@class.abilityteach.demo", modality: "kinesthetic" },
+    { name: "Avery Wilson", email: "avery.wilson@class.abilityteach.demo", modality: "mixed" },
+  ] as const;
+  for (const [index, classmate] of classmates.entries()) {
+    const privatePassword = randomBytes(32).toString("hex");
+    const passwordHash = await bcrypt.hash(privatePassword, 12);
+    const classmateUser = await db.user.upsert({
+      where: { email: classmate.email },
+      update: { schoolId: school.id, gradeLevel: "Grade 8" },
+      create: { name: classmate.name, email: classmate.email, passwordHash, role: "STUDENT", schoolId: school.id, schoolManaged: true, gradeLevel: "Grade 8" },
+    });
+    await db.enrollment.upsert({
+      where: { studentId_classroomId: { studentId: classmateUser.id, classroomId: classroom.id } },
+      update: {},
+      create: { studentId: classmateUser.id, classroomId: classroom.id },
+    });
+    const keys = classmate.modality === "mixed"
+      ? ["visual", "aural", "readWrite", "kinesthetic", "visual", "aural", "readWrite"]
+      : Array(7).fill(classmate.modality);
+    const answers = {
+      "new-topic": keys[0], remember: keys[1], instructions: keys[2], study: keys[3], show: keys[4], stuck: keys[5], group: keys[6],
+      confidence: index === 4 ? "confidence-4" : "confidence-3", "hard-topics": ["topic-maths"], change: "yes",
+    };
+    const scores = { visual: 0, aural: 0, readWrite: 0, kinesthetic: 0 };
+    for (const key of keys) scores[key as keyof typeof scores] += 1;
+    const strategies = {
+      visual: "Try a diagram or worked example, then explain it in your own words.",
+      aural: "Talk through the idea or listen to an explanation, then try a practice question.",
+      readWrite: "Read the key ideas and make a short summary or vocabulary list.",
+      kinesthetic: "Work through a real example or hands-on practice, then reflect on the steps.",
+    };
+    await db.learningProfile.upsert({
+      where: { studentId: classmateUser.id },
+      update: { ...scores, confidence: index === 4 ? 4 : 3, difficultTopics: ["maths"], strategies: [strategies[classmate.modality === "mixed" ? "visual" : classmate.modality]] },
+      create: { studentId: classmateUser.id, ...scores, confidence: index === 4 ? 4 : 3, difficultTopics: ["maths"], strategies: [strategies[classmate.modality === "mixed" ? "visual" : classmate.modality]] },
+    });
+    if (!(await db.surveyResponse.findFirst({ where: { studentId: classmateUser.id } }))) {
+      await db.surveyResponse.create({ data: { studentId: classmateUser.id, classroomId: classroom.id, confidence: index === 4 ? 4 : 3, difficultTopics: ["maths"], answers } });
+    }
   }
 
   const document = await db.curriculumDocument.findFirst({ where: { teacherId: teacher.id, title: "Fractions curriculum notes" } });
