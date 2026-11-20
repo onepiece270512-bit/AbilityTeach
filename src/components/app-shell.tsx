@@ -14,7 +14,6 @@ const teacherNav = [
   { href: "/teacher/classes", label: "My classes", icon: Users },
   { href: "/teacher/students", label: "Students", icon: GraduationCap },
   { href: "/teacher/planner", label: "AI co-planner", icon: WandSparkles },
-  { href: "/teacher/library", label: "Curriculum library", icon: Library },
   { href: "/teacher/quizzes", label: "Practice quizzes", icon: ClipboardList },
 ];
 const studentNav = [
