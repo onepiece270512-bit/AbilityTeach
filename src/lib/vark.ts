@@ -2,7 +2,7 @@ export type VarkKey = "visual" | "aural" | "readWrite" | "kinesthetic";
 export type VarkScores = Record<VarkKey, number>;
 export type SurveyQuestion = { id: string; category: string; prompt: string; options: { label: string; key: string }[]; multi?: boolean };
 
-export const surveyQuestions = [
+export const surveyQuestions: SurveyQuestion[] = [
   { id: "new-topic", category: "preferences", prompt: "When I start learning something new, I like to…", options: [
     { label: "See a picture, diagram, or example", key: "visual" }, { label: "Hear someone explain it", key: "aural" }, { label: "Read the steps or write notes", key: "readWrite" }, { label: "Try it out for myself", key: "kinesthetic" },
   ] },
