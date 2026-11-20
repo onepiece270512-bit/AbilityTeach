@@ -22,7 +22,7 @@ The `npm run db:start` helper can start an embedded local PostgreSQL on port 554
 
 ## Demo accounts
 
-The seed creates the following fictional accounts. Change these passwords before using a shared or public environment.
+The production demo initializes its database and seeds fictional classroom data during deployment. On the sign-in page, click the email field and choose **Teacher demo** or **Student demo · Priya Patel** for one-click access. Classmates are fictional profiles with private, randomly generated credentials, so Priya is the only student demo account that can sign in.
 
 | Role | Email | Password |
 | --- | --- | --- |
@@ -34,7 +34,7 @@ New teacher registrations are held for school approval. Student registration can
 
 ## AI and integrations
 
-Without credentials, lesson planning, study materials, quizzes, and tutoring use clearly labelled local demonstration responses. To enable an external AI provider, set `OPENAI_API_KEY`, select `OPENAI_MODEL`, and set `AI_EXTERNAL_PROCESSING_ENABLED=true` only after the school has authorized external processing. Student tutoring also requires the account's guardian-consent flag. The app does not send student names or IDs in AI prompts. Review provider, retention, consent, and school policies before enabling external processing.
+The student dashboard includes a three-question VARK-inspired quick check-in for live presentations. Its questions are original paraphrases based on common VARK scenarios; it is not the official questionnaire. Preferences are signals to offer choices, not fixed learning types. See [the VARK questionnaire](https://vark-learn.com/the-vark-questionnaire/).\n\nWithout credentials, lesson planning, study materials, quizzes, and tutoring use clearly labelled local demonstration responses. To enable an external AI provider, set `OPENAI_API_KEY`, select `OPENAI_MODEL`, and set `AI_EXTERNAL_PROCESSING_ENABLED=true` only after the school has authorized external processing. Student tutoring also requires the account's guardian-consent flag. The app does not send student names or IDs in AI prompts. Review provider, retention, consent, and school policies before enabling external processing.
 
 Google Classroom is shown as a demo-mode integration until official OAuth credentials and API setup are configured. Nothing is published to Classroom.
 
