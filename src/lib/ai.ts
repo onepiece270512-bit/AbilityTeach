@@ -22,7 +22,7 @@ function demoUnit(subject: string, grade: string, topic: string, studentContext?
   const modalities: Array<[string, number]> = modalityMatch ? [
     ["visual", Number(modalityMatch[1])], ["aural", Number(modalityMatch[2])],
     ["read/write", Number(modalityMatch[3])], ["hands-on", Number(modalityMatch[4])],
-  ].sort((a, b) => b[1] - a[1]) : [];
+  ] as Array<[string, number]>).sort((a, b) => b[1] - a[1]) : [];
   const classStrategy = modalities.length && modalities[0][1] > 0
     ? "Class snapshot: build in choice with " + modalities.slice(0, 2).map(([name]) => name + " examples, while keeping every format available.")
     : "Offer students a choice of diagram, spoken explanation, written notes, or hands-on practice.";
