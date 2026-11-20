@@ -1,5 +1,6 @@
 export type VarkKey = "visual" | "aural" | "readWrite" | "kinesthetic";
 export type VarkScores = Record<VarkKey, number>;
+export type SurveyQuestion = { id: string; category: string; prompt: string; options: { label: string; key: string }[]; multi?: boolean };
 
 export const surveyQuestions = [
   { id: "new-topic", category: "preferences", prompt: "When I start learning something new, I like to…", options: [
@@ -35,7 +36,7 @@ export const surveyQuestions = [
 ];
 
 
-export const quickSurveyQuestions = [
+export const quickSurveyQuestions: SurveyQuestion[] = [
   { id: "quick-new-skill", category: "preferences", prompt: "You’re learning something new. What would help you get started?", options: [
     { label: "A picture, diagram, or map", key: "visual" }, { label: "Someone talking it through", key: "aural" }, { label: "Short written steps", key: "readWrite" }, { label: "A chance to try it yourself", key: "kinesthetic" },
   ] },
@@ -45,7 +46,7 @@ export const quickSurveyQuestions = [
   { id: "quick-show", category: "preferences", prompt: "How would you show someone you understand?", options: [
     { label: "Draw or build a model", key: "visual" }, { label: "Talk them through it", key: "aural" }, { label: "Write a clear answer", key: "readWrite" }, { label: "Demonstrate it by doing it", key: "kinesthetic" },
   ] },
-] as const;
+ ];
 
 export function calculateVark(answers: Record<string, string | string[]>): VarkScores {
   const scores: VarkScores = { visual: 0, aural: 0, readWrite: 0, kinesthetic: 0 };
