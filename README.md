@@ -22,7 +22,7 @@ The `npm run db:start` helper can start an embedded local PostgreSQL on port 554
 
 ## Demo accounts
 
-The production demo initializes its database and seeds fictional classroom data during deployment. On the sign-in page, click the email field and choose **Teacher demo** or **Student demo · Priya Patel** for one-click access. Classmates are fictional profiles with private, randomly generated credentials, so Priya is the only student demo account that can sign in.
+The Vercel production build runs `npm run db:setup` before building, creating the database schema and seeding the fictional classroom data. On the sign-in page, click the email field and choose **Teacher demo** or **Student demo · Priya Patel** for one-click access. Classmates are fictional profiles with private, randomly generated credentials, so Priya is the only student demo account that can sign in.
 
 | Role | Email | Password |
 | --- | --- | --- |
