@@ -270,11 +270,12 @@ export async function completeMaterialAction(formData: FormData) {
   const previous = await db.studyMaterialProgress.findUnique({ where: { studentId_materialId: { studentId: student.id, materialId } } });
   const progress = updateMaterialProgress(previous, "COMPLETED");
   await db.studyMaterialProgress.upsert({ where: { studentId_materialId: { studentId: student.id, materialId } }, update: progress, create: { studentId: student.id, materialId, ...progress } });
-  if (permitted.material.lessonId) {
+  const lessonId = permitted.material?.lessonId;
+  if (lessonId) {
     await db.studentProgress.upsert({
-      where: { studentId_lessonId: { studentId: student.id, lessonId: permitted.material.lessonId } },
+      where: { studentId_lessonId: { studentId: student.id, lessonId } },
       update: { status: "COMPLETED", completion: 100 },
-      create: { studentId: student.id, lessonId: permitted.material.lessonId, status: "COMPLETED", completion: 100 },
+      create: { studentId: student.id, lessonId, status: "COMPLETED", completion: 100 },
     });
   }
   await logAudit(student.id, "MATERIAL_MARKED_COMPLETE", "StudyMaterial", materialId);
@@ -290,7 +291,7 @@ export async function teacherAssistantAction(_previous: ActionState, formData: F
   const context = [...classroom.documents.map((doc) => doc.content), ...classroom.units.flatMap((unit) => [`${unit.title}: ${unit.description}`, ...unit.lessons.map((lesson) => `${lesson.title}: ${lesson.objective}`)])].join("\n");
   try {
     const result = await teachingReply(parsed.data.prompt, context);
-    const conversation = await db.aiConversation.create({ data: { userId: teacher.id, classroomId: classroom.id, title: parsed.data.prompt.slice(0, 80), isDemoMode: result.demo, messages: [{ role: "user", content: parsed.data.prompt }, { role: "assistant", content: result.reply }] } });
+    const conversation = await db.aIConversation.create({ data: { userId: teacher.id, classroomId: classroom.id, title: parsed.data.prompt.slice(0, 80), isDemoMode: result.demo, messages: [{ role: "user", content: parsed.data.prompt }, { role: "assistant", content: result.reply }] } });
     await logAudit(teacher.id, result.demo ? "AI_CO_PLANNER_DEMO_USED" : "AI_CO_PLANNER_USED", "AIConversation", conversation.id);
     return { success: `${result.demo ? "Demo co-planner" : "AI co-planner"}:\n${result.reply}` };
   } catch (error) {
@@ -351,9 +352,9 @@ export async function studentTutorAction(_previous: ActionState, formData: FormD
   }
   try {
     const result = await studentTutorReply(parsed.data.prompt, content, student.guardianConsent);
-    const prior = await db.aiConversation.findFirst({ where: { userId: student.id, title: "Study tutor" }, orderBy: { updatedAt: "desc" } });
+    const prior = await db.aIConversation.findFirst({ where: { userId: student.id, title: "Study tutor" }, orderBy: { updatedAt: "desc" } });
     const nextMessages = [...(Array.isArray(prior?.messages) ? prior.messages as unknown[] : []), { role: "user", content: parsed.data.prompt }, { role: "assistant", content: result.reply }].slice(-20);
-    await db.aiConversation.upsert({
+    await db.aIConversation.upsert({
       where: { id: prior?.id ?? "new" },
       update: { messages: nextMessages as Prisma.InputJsonValue, isDemoMode: result.demo },
       create: { userId: student.id, title: "Study tutor", messages: nextMessages as Prisma.InputJsonValue, isDemoMode: result.demo },
