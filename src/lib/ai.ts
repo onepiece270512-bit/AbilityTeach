@@ -18,7 +18,7 @@ export type UnitPlan = z.infer<typeof unitPlanSchema>;
 
 function demoUnit(subject: string, grade: string, topic: string, studentContext?: string, revisionRequest?: string): UnitPlan {
   const topicTitle = topic.trim().slice(0, 90) || "Our next topic";
-  const modalityMatch = studentContext?.match(/Aggregate VARK selections: visual (\\d+), aural (\\d+), read\\/write (\\d+), hands-on (\\d+)/);
+  const modalityMatch = studentContext?.match(/Aggregate VARK selections: visual (\d+), aural (\d+), read\/write (\d+), hands-on (\d+)/);
   const modalities: Array<[string, number]> = modalityMatch ? [
     ["visual", Number(modalityMatch[1])], ["aural", Number(modalityMatch[2])],
     ["read/write", Number(modalityMatch[3])], ["hands-on", Number(modalityMatch[4])],
@@ -26,7 +26,7 @@ function demoUnit(subject: string, grade: string, topic: string, studentContext?
   const classStrategy = modalities.length && modalities[0][1] > 0
     ? "Class snapshot: build in choice with " + modalities.slice(0, 2).map(([name]) => name + " examples, while keeping every format available.")
     : "Offer students a choice of diagram, spoken explanation, written notes, or hands-on practice.";
-  const lowQuiz = Boolean(studentContext?.match(/Average recorded quiz score: (\\d+)%/) && Number(studentContext.match(/Average recorded quiz score: (\\d+)%/)?.[1]) < 70);
+  const lowQuiz = Boolean(studentContext?.match(/Average recorded quiz score: (\d+)%/) && Number(studentContext.match(/Average recorded quiz score: (\d+)%/)?.[1]) < 70);
   const revision = revisionRequest?.toLowerCase() || "";
   const changeActivity = revision.includes("hand") || revision.includes("practical")
     ? "Teacher revision: add a hands-on model or real-world practice task."
