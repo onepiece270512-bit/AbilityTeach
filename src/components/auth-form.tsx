@@ -1,21 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { loginAction, registerAction } from "@/app/actions/auth";
 import { BookOpen, GraduationCap, UserRound } from "lucide-react";
 
 export function LoginForm() {
   const [state, action, pending] = useActionState(loginAction, {});
-  return <form action={action} className="auth-form">
-    <label>Email<input name="email" type="email" autoComplete="username" required maxLength={254} placeholder="you@school.edu" /></label>
-    <label>Password<input name="password" type="password" autoComplete="current-password" required maxLength={128} placeholder="Your password" /></label>
+  const formRef = useRef<HTMLFormElement>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const demoAccounts = [
+    { label: "Teacher demo · Jordan Lee", email: "teacher@abilityteach.demo", password: "LearnTogether2026!" },
+    { label: "Student demo · Priya Patel", email: "priya@abilityteach.demo", password: "LearnTogether2026!" },
+  ];
+  const chooseAccount = (account: typeof demoAccounts[number]) => {
+    setEmail(account.email);
+    setPassword(account.password);
+    setShowSuggestions(false);
+    window.setTimeout(() => formRef.current?.requestSubmit(), 0);
+  };
+  return <form ref={formRef} action={action} className="auth-form">
+    <label>Email
+      <div className="demo-email-wrap">
+        <input name="email" type="email" autoComplete="username" required maxLength={254} placeholder="Click to choose a demo account" value={email} onChange={(event) => setEmail(event.target.value)} onFocus={() => setShowSuggestions(true)} aria-expanded={showSuggestions} aria-controls="demo-account-list" />
+        {showSuggestions && <div className="demo-account-list" id="demo-account-list" role="listbox" aria-label="Demo accounts">{demoAccounts.map((account) => <button key={account.email} type="button" role="option" className="demo-account-option" onClick={() => chooseAccount(account)}><span className="demo-avatar">{account.label.startsWith("Teacher") ? <GraduationCap size={17}/> : <UserRound size={17}/>}</span><span><b>{account.label}</b><small>{account.email}</small></span><span className="demo-account-arrow">→</span></button>)}</div>}
+      </div>
+    </label>
+    <label>Password<input name="password" type="password" autoComplete="current-password" required maxLength={128} placeholder="Your password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>
     {state.error && <p className="form-message error" role="alert">{state.error}</p>}
     <button className="button button-primary full" disabled={pending}>{pending ? "Signing in…" : "Sign in"}</button>
-    <Link className="muted-link auth-small" href="/reset-password">Forgot your password?</Link>
-    <div className="demo-logins"><b>Demo accounts</b><span>Teacher: teacher@abilityteach.demo</span><span>Student: priya@abilityteach.demo</span><span>Password for both: <code>LearnTogether2026!</code></span></div>
   </form>;
-}
 
 export function RegisterForm() {
   const [state, action, pending] = useActionState(registerAction, {});
@@ -46,7 +62,7 @@ export function RegisterForm() {
 
 export function AuthCard({ mode }: { mode: "login" | "register" }) {
   return <div className="auth-layout">
-    <div className="auth-brand-panel"><Link className="brand brand-light" href="/"><span className="brand-icon"><BookOpen size={22}/></span><span>Ability<span>Teach</span></span></Link><div><span className="eyebrow light-eyebrow">EVERY STUDENT. A BETTER WAY TO LEARN.</span><h1>Learning that makes room for <em>everyone.</em></h1><p>Lessons, activities, and support for every curious mind.</p></div><div className="brand-panel-footer">A classroom can be many things.</div></div>
-    <section className="auth-card"><div className="auth-heading"><span className="eyebrow">{mode === "login" ? "WELCOME BACK" : "LET'S GET STARTED"}</span><h2>{mode === "login" ? "Sign in to AbilityTeach" : "Create your account"}</h2><p>{mode === "login" ? "Your classes and learning tools are waiting." : "Choose your role to set up the right experience."}</p></div>{mode === "login" ? <LoginForm/> : <RegisterForm/>}<p className="auth-switch">{mode === "login" ? "New to AbilityTeach?" : "Already have an account?"} <Link href={mode === "login" ? "/register" : "/login"}>{mode === "login" ? "Create an account" : "Sign in"}</Link></p></section>
+    <div className="auth-brand-panel"><Link className="brand brand-light" href="/"><span className="brand-icon"><img src="/abilityteach-logo.svg" alt="" /></span><span>Ability<span>Teach</span></span></Link><div><span className="eyebrow light-eyebrow">EVERY STUDENT. A BETTER WAY TO LEARN.</span><h1>Learning that makes room for <em>everyone.</em></h1><p>Lessons, activities, and support for every curious mind.</p></div><div className="brand-panel-footer">A classroom can be many things.</div></div>
+    <section className="auth-card"><div className="auth-heading"><span className="eyebrow">{mode === "login" ? "WELCOME BACK" : "LET'S GET STARTED"}</span><h2>{mode === "login" ? "Sign in to AbilityTeach" : "Create your account"}</h2><p>{mode === "login" ? "Click the email box and choose a demo account to jump in." : "Choose your role to set up the right experience."}</p></div>{mode === "login" ? <LoginForm/> : <RegisterForm/>}{mode === "register" && <p className="auth-switch">Already have an account? <Link href="/login">Sign in</Link></p>}</section>
   </div>;
 }
